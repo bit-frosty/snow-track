@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FrostByte Tracker</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <h1>FrostByte Tracker</h1>
+    <div class="tracker-list">
+        <h2>Tracked Assets:</h2>
+        <ul>
+            {% for name, location in assets %}
+            <li>{{ name }} is at {{ location }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="update-location">
+        <h3>Update Location</h3>
+        <form id="location-form">
+            <input type="text" id="asset-name" placeholder="Asset Name" required>
+            <input type="text" id="new-location" placeholder="New Location" required>
+            <button type="submit">Update</button>
+        </form>
+    </div>
+
+    <script src="/static/scripts.js"></script>
+</body>
+</html>
