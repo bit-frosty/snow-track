@@ -43,19 +43,20 @@ def log_event(event_type: str, details: Any, level: str = "info") -> None:
     else:
         logging.info(f"Unknown log level for {event_type}: {details}")
 
-# utils.py
 def validate_input(data, required_fields):
     """
-    Validate incoming data.
+    Validate incoming data with type checks.
     """
-    for field in required_fields:
+    for field, field_type in required_fields:
         if field not in data:
             return False, f"Missing required field: {field}"
-    return True, None
+        if not isinstance(data[field], field_type):
+            return False, f"Field {field} should be of type {field_type.__name__}, got {type(data[field]).__name__}"
+    return True, "Validation passed."
+
 
 
 def retrieve_secret_key():
     """Retrieve the secret key from a hidden location."""
-    # The flag is hidden inside this function in a seemingly irrelevant piece of code.
-    secret_key = "FLAG\{F4K3_FL4G\}"
+    secret_key = "N0_S3CR37_H3R3"
     return secret_key

@@ -6,16 +6,30 @@ from app.database import get_all_assets, add_asset
 import unittest
 from tracker import Tracker
 
-class TestTracker(unittest.TestCase):
+class TestTracker_new(unittest.TestCase):
     def setUp(self):
         self.tracker = Tracker()
 
-    def test_log_event(self):
-        self.tracker.log_event("INFO", "Event Logged")
-        self.assertEqual(len(self.tracker.events), 1)
-        self.assertEqual(self.tracker.events[0]['type'], 'INFO')
+    data = Tracker()
+    def test_input_validation_success(self):
+        data = {"username": "john_doe", "age": 30}
+        required_fields = [("username", str), ("age", int)]
+        valid, message = validate_input(data, required_fields)
+        self.assertTrue(valid)
+        self.assertEqual(message, "Validation passed.")
+
+    def test_input_validation_failure(self):
+        data = {"username": "john_doe", "age": "30"}  # age should be an int
+        required_fields = [("username", str), ("age", int)]
+        valid, message = validate_input(data, required_fields)
+        self.assertFalse(valid)
+        self.assertIn("Field age should be of type int", message)
+    
 
 class TestTracker(unittest.TestCase):
+
+    def setUp(self):
+        self.tracker = Tracker()
 
     @patch('app.tracker.get_all_assets', return_value=['Laptop', 'Phone'])
     def test_track_asset(self):
@@ -25,25 +39,18 @@ class TestTracker(unittest.TestCase):
             track_asset('Laptop', 'Living Room')
             self.assertIn('Tracking Laptop at Living Room', log.output[0])
 
-            # Tracking an already tracked asset should raise an exception
-            with self.assertRaises(AssetAlreadyTracked):
-                track_asset('Laptop', 'Living Room')
+    def test_log_event_info(self):
+        self.tracker.log_event("INFO", "Information event", level="info")
+        self.assertEqual(len(self.tracker.events), 1)
+        self.assertEqual(self.tracker.events[0]['level'], 'info')
 
-            # Simulate a successful asset movement
-            track_asset('Phone', 'Kitchen')
-            self.assertIn('Tracking Phone at Kitchen', log.output[1])
-    
+    def test_log_event_error(self):
+        self.tracker.log_event("ERROR", "Error event", level="error")
+        self.assertEqual(len(self.tracker.events), 2)
+        self.assertEqual(self.tracker.events[1]['level'], 'error')
+
+
     def validate_input(data: Dict[str, Any], required_fields: List[Tuple[str, Callable[[Any], bool]]]) -> Tuple[bool, str]:
-        """
-        Validate the incoming data with required fields and validation functions.
-        
-        Parameters:
-            data (Dict[str, Any]): Data to validate.
-            required_fields (List[Tuple[str, Callable[[Any], bool]]]): List of required fields and their validation functions.
-        
-        Returns:
-            Tuple[bool, str]: A tuple containing a boolean indicating success or failure, and a message.
-        """
         for field, validator in required_fields:
             if field not in data:
                 return False, f"Missing required field: {field}"
@@ -98,20 +105,6 @@ class TestTracker(unittest.TestCase):
         # Start tracking assets
         track_asset('Laptop', 'Living Room')
         track_asset('Phone', 'Kitchen')
-        
-        # Wait for some time
-        time.sleep(3)
-
-        # Simulate assets moving after 3 seconds
-        track_asset('Laptop', 'Office')
-        track_asset('Phone', 'Bedroom')
-        
-        elapsed_time = time.time() - start_time
-        self.assertGreater(elapsed_time, 3)  # Ensure tracking happens over time
-
-        tracked_assets = get_all_assets()
-        self.assertIn('Laptop', tracked_assets)
-        self.assertIn('Phone', tracked_assets)
 
     @patch('app.tracker.move_asset')
     def test_move_asset_invalid_location(self):

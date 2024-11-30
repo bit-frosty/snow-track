@@ -7,6 +7,10 @@ import logging
 # Set up logging for tracking events
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+# tracker.py
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 class Tracker:
@@ -24,11 +28,16 @@ def track_asset(name, location):
     # Add a sleep time to simulate real-world tracking (longer delays)
     time.sleep(random.uniform(0.5, 2.0))
 
-def init_tracking_system():
-    """Simulate initializing the tracking system."""
-    print("Initializing the FrostByte tracking system...")
-    time.sleep(1)
-    print("Tracking system is now operational.")
+def log_event(self, event_type: str, details: str, level: str = "info") -> None:
+        """Logs events with different levels."""
+        log_message = f"{event_type}: {details}"
+        if level == "info":
+            logging.info(log_message)
+        elif level == "error":
+            logging.error(log_message)
+        elif level == "warning":
+            logging.warning(log_message)
+        self.events.append({"type": event_type, "details": details, "level": level})
 
 def simulate_tracking_noise(location):
     """Introduce random noise to the location for realism."""

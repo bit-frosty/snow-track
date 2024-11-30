@@ -2,7 +2,8 @@ import os
 from flask import Flask
 from .database import init_db
 from .tracker import Tracker
-from .utils import validate_input
+from .utils import validate_input, log_event
+
 
 
 # Initialize extensions
