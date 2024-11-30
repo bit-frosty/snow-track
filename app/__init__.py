@@ -10,14 +10,21 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///frostbytectf.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # Initialize database
-    init_db()
+    db.init_app(app)
+    migrate.init_app(app, db)
 
-    # Initialize tracking system
-    init_tracking_system()
+    # Setup basic logging
+    if not app.debug:
+        logging.basicConfig(level=logging.INFO)
+        app.logger.addHandler(logging.StreamHandler())
 
-    with app.app_context():
-        from .routes import bp as main_blueprint
-        app.register_blueprint(main_blueprint)
+    try:
+        # Initialize database (e.g., creating tables if needed)
+        init_db()
 
-    return app
+        # Initialize the asset tracking system
+        init_tracking_system()
+
+    except Exception as e:
+        app.logger.error(f"Error during app initialization: {e}")
+        raise

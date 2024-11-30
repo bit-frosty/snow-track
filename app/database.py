@@ -2,12 +2,6 @@ import sqlite3
 import os
 
 DATABASE_FILE = 'frostbytectf.db'
-ACCESS_CODE = "FROSTBYTE{FR0ZEN_TW33T_0F_TH3_P4S7}"
-
-def connect_db():
-    """Connect to the SQLite database with logging."""
-    log_event("DATABASE", "Connecting to the database")
-    return sqlite3.connect(DATABASE_FILE)
 
 def add_asset(name, location, user_id):
     """Add a new asset to the database with logging."""
@@ -19,6 +13,22 @@ def add_asset(name, location, user_id):
         log_event("DATABASE", f"Asset '{name}' added for user {user_id}")
         conn.commit()
 
+def add_user(username, password):
+    """Add a user with a hashed password."""
+    password_hash = hash_password(password)
+    with connect_db() as conn:
+        conn.execute(
+            'INSERT INTO users (username, password_hash) VALUES (?, ?)', 
+            (username, password_hash)
+        )
+        log_event("DATABASE", f"User '{username}' added with hashed password")
+        conn.commit()
+
+
+def connect_db():
+    """Connect to the SQLite database with logging."""
+    log_event("DATABASE", "Connecting to the database")
+    return sqlite3.connect(DATABASE_FILE)
 
 def init_db():
     """Initialize the database with the required schema."""
