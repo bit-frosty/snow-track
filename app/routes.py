@@ -54,12 +54,32 @@ def track_lst():
     add_asset(name, location)
     return jsonify({'message': f'{name} is now being tracked at {location}.'}), 200
 
+def get_location_history(asset_id):
+    """Retrieve the location history of a specific asset."""
+    try:
+        with connect_db() as conn:
+            cursor = conn.execute('SELECT location, timestamp FROM location_history WHERE asset_id = ?', (asset_id,))
+            history = cursor.fetchall()
+
+        if not history:
+            return jsonify({'error': 'No history found for this asset.'}), 404
+
+        return jsonify({'history': [{'location': h[0], 'timestamp': h[1]} for h in history]})
+    
+    except Exception as e:
+        logger.error(f"Error retrieving history for asset {asset_id}: {e}")
+        return jsonify({'error': 'An error occurred while retrieving the history.'}), 500
+
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
     """Handle user registration."""
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+
+        if not username or not password:
+            return jsonify({'error': 'Username and password are required.'}), 400
+
         password_hash = generate_password_hash(password)
 
         try:
@@ -68,27 +88,10 @@ def register():
                 conn.commit()
         except sqlite3.IntegrityError:
             return jsonify({'error': 'Username already exists.'}), 400
+        except Exception as e:
+            logger.error(f"Error during registration: {e}")
+            return jsonify({'error': 'An error occurred while registering the user.'}), 500
 
         return redirect(url_for('main.index'))
+
     return render_template('register.html')
-
-
-@bp.route('/update_location', methods=['POST'])
-def update_location():
-    """Update the location of an already tracked asset."""
-    data = request.json
-    required_fields = ['name', 'new_location']
-
-    is_valid, error = validate_input(data, required_fields)
-    if not is_valid:
-        return jsonify({'error': error}), 400
-
-    name = data.get('name')
-    new_location = data.get('new_location')
-
-    # Update the asset's location
-    updated = update_asset_location(name, new_location)
-    if updated:
-        return jsonify({'message': f'{name} location updated to {new_location}.'}), 200
-    else:
-        return jsonify({'error': f'{name} not found.'}), 404
