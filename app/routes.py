@@ -18,11 +18,17 @@ def track():
     name = data.get('name')
     location = data.get('location')
 
+    # Validate input data
+    if not name or not location:
+        return jsonify({'error': 'Name and location are required.'}), 400
+
+    # Log the tracking event
     log_event("USER_ACTION", f"Tracking request for asset: {name} at {location}")
-    track_asset(name, location)
+
     # Track and save the asset
     track_asset(name, location)
     add_asset(name, location)
+    
     return jsonify({'message': f'{name} is now being tracked at {location}.'}), 200
 
 @bp.route('/history/<int:asset_id>', methods=['GET'])
@@ -34,6 +40,19 @@ def get_location_history(asset_id):
 
     return jsonify({'history': [{'location': h[0], 'timestamp': h[1]} for h in history]})
 
+@bp.route('/track_last', methods=['POST'])
+def track_lst():
+    """Log user requests to track new assets."""
+    data = request.json
+    name = data.get('name')
+    location = data.get('location')
+
+    log_event("USER_ACTION", f"Tracking request for asset: {name} at {location}")
+    track_asset(name, location)
+    # Track and save the asset
+    track_asset(name, location)
+    add_asset(name, location)
+    return jsonify({'message': f'{name} is now being tracked at {location}.'}), 200
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():

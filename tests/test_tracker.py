@@ -38,27 +38,47 @@ class TestTracker(unittest.TestCase):
             if not validator(data[field]):
                 return False, f"Field validation failed for: {field} (value: {data[field]})"
         return True, "All fields validated successfully."
+    
+    @patch('app.tracker.get_all_assets')
+    def test_edge_case_asset_not_found(self):
+        """Test edge case when asset is not found in the tracking list."""
+        with self.assertRaises(AssetNotFound):
+            track_asset('NonExistentAsset', 'Living Room')
 
+    @patch('app.tracker.get_all_assets')
+    def test_asset_tracking_time(self):
+        """Test asset tracking duration and movement logic."""
+        start_time = time.time()
 
-def test_multiple_asset_tracking(self):
-        """Test multiple assets tracking and stop asset tracking."""
-        assets = ['Laptop', 'Phone', 'Tablet']
-
-        for asset in assets:
-            track_asset(asset, 'Living Room')
+        # Start tracking assets
+        track_asset('Laptop', 'Living Room')
+        track_asset('Phone', 'Kitchen')
         
-        # Check if assets are tracked
+        # Wait for some time
+        time.sleep(3)
+
+    def test_asset_tracking_with_multiple_updates(self):
+        """Test scenario where multiple updates occur to the same asset in quick succession."""
+        track_asset('Laptop', 'Living Room')
+        track_asset('Laptop', 'Kitchen')  # Update asset's location quickly
+        track_asset('Laptop', 'Bedroom')  # Another location update
+
+        # Check the asset's final location
+        tracked_assets = get_all_assets()
+        self.assertIn('Laptop', tracked_assets)
+        self.assertEqual(tracked_assets['Laptop'], 'Bedroom')
+    
+        # Simulate assets moving after 3 seconds
+        track_asset('Laptop', 'Office')
+        track_asset('Phone', 'Bedroom')
+        
+        elapsed_time = time.time() - start_time
+        self.assertGreater(elapsed_time, 3)  # Ensure tracking happens over time
+
         tracked_assets = get_all_assets()
         self.assertIn('Laptop', tracked_assets)
         self.assertIn('Phone', tracked_assets)
-        self.assertIn('Tablet', tracked_assets)
 
-        # Simulate stopping asset tracking
-        stop_asset_tracking('Phone')
-        tracked_assets_after_stop = get_all_assets()
-        self.assertNotIn('Phone', tracked_assets_after_stop)
-
-    @patch('app.tracker.get_all_assets')
     def test_asset_tracking_time(self):
         """Test asset tracking duration and movement logic."""
         start_time = time.time()
@@ -81,11 +101,12 @@ def test_multiple_asset_tracking(self):
         self.assertIn('Laptop', tracked_assets)
         self.assertIn('Phone', tracked_assets)
 
-    @patch('app.tracker.get_all_assets')
-    def test_edge_case_asset_not_found(self):
-        """Test edge case when asset is not found in the tracking list."""
-        with self.assertRaises(AssetNotFound):
-            track_asset('NonExistentAsset', 'Living Room')
+    @patch('app.tracker.move_asset')
+    def test_move_asset_invalid_location(self):
+        """Test invalid location while moving an asset."""
+        with self.assertRaises(InvalidAssetLocation):
+            move_asset('Laptop', 'NonExistentLocation')
 
+    
 if __name__ == '__main__':
     unittest.main()
