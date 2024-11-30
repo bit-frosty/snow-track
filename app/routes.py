@@ -24,6 +24,10 @@ def track():
     name = data.get('name')
     location = data.get('location')
 
+    data = request.json
+    if not data or not data.get('name') or not data.get('location'):
+        return handle_error("Missing 'name' or 'location' in request", 400)
+    
     # Track and save the asset
     track_asset(name, location)
     add_asset(name, location)

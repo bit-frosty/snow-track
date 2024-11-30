@@ -7,6 +7,12 @@ def validate_input(data, required_fields):
             return False, f"Missing required field: {field}"
     return True, None
 
+def handle_error(message, status_code):
+    """Centralized error handling."""
+    response = jsonify({'error': message})
+    response.status_code = status_code
+    return response
+
 def generate_flag():
 
     fake_flags = [
