@@ -29,6 +29,16 @@ def track():
     add_asset(name, location)
     return jsonify({'message': f'{name} is now being tracked at {location}.'}), 200
 
+@bp.route('/history/<int:asset_id>', methods=['GET'])
+def get_location_history(asset_id):
+    """Retrieve the location history of a specific asset."""
+    with connect_db() as conn:
+        cursor = conn.execute('SELECT location, timestamp FROM location_history WHERE asset_id = ?', (asset_id,))
+        history = cursor.fetchall()
+
+    return jsonify({'history': [{'location': h[0], 'timestamp': h[1]} for h in history]})
+
+
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
     """Handle user registration."""

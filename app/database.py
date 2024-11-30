@@ -30,17 +30,21 @@ def init_db():
             conn.commit()
 
 
-def get_all_assets():
-    """Retrieve all tracked assets."""
+def add_location_history(asset_id, location):
+    """Track location history of an asset."""
     with connect_db() as conn:
-        cursor = conn.execute('SELECT name, location FROM assets ORDER BY last_seen DESC')
-        return cursor.fetchall()
-
-def add_asset(name, location):
-    """Add a new asset to the database."""
-    with connect_db() as conn:
-        conn.execute('INSERT INTO assets (name, location) VALUES (?, ?)', (name, location))
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS location_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                asset_id INTEGER NOT NULL,
+                location TEXT NOT NULL,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (asset_id) REFERENCES assets (id)
+            )
+        ''')
+        conn.execute('INSERT INTO location_history (asset_id, location) VALUES (?, ?)', (asset_id, location))
         conn.commit()
+
 
 def update_asset_location(name, new_location):
     """Update the location of an asset."""
