@@ -43,12 +43,16 @@ def log_event(event_type: str, details: Any, level: str = "info") -> None:
     else:
         logging.info(f"Unknown log level for {event_type}: {details}")
 
+# utils.py
 def validate_input(data, required_fields):
-    """Validate the incoming data."""
+    """
+    Validate incoming data.
+    """
     for field in required_fields:
         if field not in data:
             return False, f"Missing required field: {field}"
     return True, None
+
 
 def retrieve_secret_key():
     """Retrieve the secret key from a hidden location."""

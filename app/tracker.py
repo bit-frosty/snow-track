@@ -8,6 +8,16 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
+class Tracker:
+    def __init__(self):
+        self.events = []
+
+    def log_event(self, event_type: str, details: str) -> None:
+        """Logs an event."""
+        self.events.append({"type": event_type, "details": details})
+        logging.info(f"{event_type}: {details}")
+
 def track_asset(name, location):
     """Simulate tracking an asset's location."""
     print(f"Tracking {name} at {location}")
@@ -28,13 +38,6 @@ def simulate_tracking_noise(location):
     new_location = (location[0] + noise_x, location[1] + noise_y)
     log_event("TRACKING", f"Simulated noise added: X={noise_x}, Y={noise_y}")
     return new_location
-
-def track_asset(name, location):
-    """Track asset with noise simulation."""
-    location_with_noise = simulate_tracking_noise(location)
-    print(f"Tracking {name} at {location_with_noise}")
-    notify_location_update(name, location_with_noise)
-
 
 def start_asset_tracking(name):
     """Start a separate thread for simulating asset movement."""

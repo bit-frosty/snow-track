@@ -1,7 +1,9 @@
 import os
 from flask import Flask
 from .database import init_db
-from .tracker import init_tracking_system
+from .tracker import Tracker
+from .utils import validate_input
+
 
 # Initialize extensions
 db = SQLAlchemy()
@@ -26,10 +28,7 @@ def create_app(config_filename=None):
         app.logger.addHandler(logging.StreamHandler())
 
     try:
-        # Initialize database (e.g., creating tables if needed)
         init_db()
-
-        # Initialize the asset tracking system
         init_tracking_system()
 
     except Exception as e:
@@ -53,4 +52,3 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
 
-    # Setup basic logging

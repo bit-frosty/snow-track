@@ -2,6 +2,18 @@ import unittest, time
 from app.tracker import track_asset, start_asset_tracking
 from app.database import get_all_assets, add_asset
 
+# test_tracker.py
+import unittest
+from tracker import Tracker
+
+class TestTracker(unittest.TestCase):
+    def setUp(self):
+        self.tracker = Tracker()
+
+    def test_log_event(self):
+        self.tracker.log_event("INFO", "Event Logged")
+        self.assertEqual(len(self.tracker.events), 1)
+        self.assertEqual(self.tracker.events[0]['type'], 'INFO')
 
 class TestTracker(unittest.TestCase):
 
@@ -44,17 +56,17 @@ class TestTracker(unittest.TestCase):
         """Test edge case when asset is not found in the tracking list."""
         with self.assertRaises(AssetNotFound):
             track_asset('NonExistentAsset', 'Living Room')
+    
+    def test_log_event(self):
+        self.tracker.log_event("INFO", "Event Logged")
+        self.assertEqual(len(self.tracker.events), 1)
+        self.assertEqual(self.tracker.events[0]['type'], 'INFO')
 
     @patch('app.tracker.get_all_assets')
     def test_asset_tracking_time(self):
         """Test asset tracking duration and movement logic."""
-        start_time = time.time()
-
-        # Start tracking assets
         track_asset('Laptop', 'Living Room')
         track_asset('Phone', 'Kitchen')
-        
-        # Wait for some time
         time.sleep(3)
 
     def test_asset_tracking_with_multiple_updates(self):
