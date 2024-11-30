@@ -1,4 +1,4 @@
-# Track-it Assets Tracker
+# Snow-Track Assets Tracker
 
 ## Author: Alan Frost
 
