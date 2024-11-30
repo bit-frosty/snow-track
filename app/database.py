@@ -12,14 +12,23 @@ def init_db():
     if not os.path.exists(DATABASE_FILE):
         with connect_db() as conn:
             conn.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT NOT NULL UNIQUE,
+                    password_hash TEXT NOT NULL
+                )
+            ''')
+            conn.execute('''
                 CREATE TABLE IF NOT EXISTS assets (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name TEXT NOT NULL,
                     location TEXT NOT NULL,
-                    last_seen TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+                    user_id INTEGER NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES users (id)
                 )
             ''')
             conn.commit()
+
 
 def get_all_assets():
     """Retrieve all tracked assets."""

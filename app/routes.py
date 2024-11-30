@@ -29,6 +29,25 @@ def track():
     add_asset(name, location)
     return jsonify({'message': f'{name} is now being tracked at {location}.'}), 200
 
+@bp.route('/register', methods=['GET', 'POST'])
+def register():
+    """Handle user registration."""
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        password_hash = generate_password_hash(password)
+
+        try:
+            with connect_db() as conn:
+                conn.execute('INSERT INTO users (username, password_hash) VALUES (?, ?)', (username, password_hash))
+                conn.commit()
+        except sqlite3.IntegrityError:
+            return jsonify({'error': 'Username already exists.'}), 400
+
+        return redirect(url_for('main.index'))
+    return render_template('register.html')
+
+
 @bp.route('/update_location', methods=['POST'])
 def update_location():
     """Update the location of an already tracked asset."""
