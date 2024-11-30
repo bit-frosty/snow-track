@@ -1,4 +1,17 @@
 import random
+import logging
+
+# Set up a logger
+logging.basicConfig(
+    filename='frostbyte.log',
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s]: %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
+def log_event(event_type, details):
+    """Log events in the application."""
+    logging.info(f"{event_type}: {details}")
 
 def validate_input(data, required_fields):
     """Validate the incoming data."""
@@ -13,14 +26,6 @@ def handle_error(message, status_code):
     response.status_code = status_code
     return response
 
-def generate_flag():
-
-    fake_flags = [
-        "FAKE_FLAG\{nice_try_keep_digging\}",
-        "FAKE_FLAG\{you_know_it's_in_there\}",
-        "FAKE_FLAG\{stay_frostyyyy\}"
-    ]
-    return random.choice(fake_flags)
 
 def retrieve_secret_key():
     """Retrieve the secret key from a hidden location."""

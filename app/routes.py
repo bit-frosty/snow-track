@@ -13,21 +13,13 @@ def index():
 
 @bp.route('/track', methods=['POST'])
 def track():
-    """API endpoint to track a new asset."""
+    """Log user requests to track new assets."""
     data = request.json
-    required_fields = ['name', 'location']
-
-    is_valid, error = validate_input(data, required_fields)
-    if not is_valid:
-        return jsonify({'error': error}), 400
-
     name = data.get('name')
     location = data.get('location')
 
-    data = request.json
-    if not data or not data.get('name') or not data.get('location'):
-        return handle_error("Missing 'name' or 'location' in request", 400)
-    
+    log_event("USER_ACTION", f"Tracking request for asset: {name} at {location}")
+    track_asset(name, location)
     # Track and save the asset
     track_asset(name, location)
     add_asset(name, location)
