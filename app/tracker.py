@@ -1,5 +1,7 @@
 import time
 import random
+import math
+import random
 
 def track_asset(name, location):
     """Simulate tracking an asset's location."""
@@ -12,19 +14,21 @@ def init_tracking_system():
     print("Initializing the FrostByte tracking system...")
     time.sleep(1)
     print("Tracking system is now operational.")
-    # Fake initialization process to mislead players into thinking there's more complexity
 
-def simulate_asset_movement(name):
-    """Simulate the movement of an asset (e.g., Leo running around)."""
-    directions = ['North', 'South', 'East', 'West']
-    while True:
-        # Random movement every 5 seconds
-        new_location = random.choice(directions)
-        track_asset(name, new_location)
-        time.sleep(5)
+def simulate_tracking_noise(location):
+    """Introduce random noise to the location for realism."""
+    noise = random.uniform(-0.01, 0.01)
+    new_location = (location[0] + noise, location[1] + noise)
+    log_event("TRACKING", f"Simulated noise added: {noise}")
+    return new_location
 
-# Start simulation for tracking Leo (in the background)
-# In the real application, this would be done asynchronously or in a separate thread
+def track_asset(name, location):
+    """Track asset with noise simulation."""
+    location_with_noise = simulate_tracking_noise(location)
+    print(f"Tracking {name} at {location_with_noise}")
+    notify_location_update(name, location_with_noise)
+
+
 def start_asset_tracking(name):
     """Start a separate thread for simulating asset movement."""
     import threading
